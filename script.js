@@ -1,23 +1,3 @@
-let audioUnlocked = false;
-
-function unlockAudio() {
-    if (audioUnlocked) return;
-
-    sounds.ambient.play()
-        .then(() => {
-            sounds.ambient.pause();
-            sounds.ambient.currentTime = 0;
-            audioUnlocked = true;
-
-            // NOW start real ambient sound
-            sounds.ambient.play();
-        })
-        .catch(() => {});
-
-    document.removeEventListener("click", unlockAudio);
-}
-
-document.addEventListener("click", unlockAudio);
 
 // ------------------ STATE ------------------
 let score = 0;
@@ -26,6 +6,7 @@ let current = "q1";
 let timeLeft = 60;
 let timer;
 let gameEnded = false;
+let audioUnlocked = false;
 
 // ------------------ SOUND ------------------
 const sounds = {
@@ -37,10 +18,25 @@ const sounds = {
 sounds.ambient.loop = true;
 sounds.heartbeat.loop = true;
 
-function startAmbient() {
-    sounds.ambient.volume = 0.3;
-    sounds.ambient.play();
+// ------------------ AUDIO UNLOCK ------------------
+function unlockAudio() {
+    if (audioUnlocked) return;
+
+    sounds.ambient.play()
+        .then(() => {
+            sounds.ambient.pause();
+            sounds.ambient.currentTime = 0;
+            audioUnlocked = true;
+
+            // start ambient after unlock
+            sounds.ambient.play();
+        })
+        .catch(() => {});
+
+    document.removeEventListener("click", unlockAudio);
 }
+
+document.addEventListener("click", unlockAudio);
 
 // ------------------ BACKGROUNDS ------------------
 const backgrounds = {
@@ -75,10 +71,10 @@ const game = {
     },
 
     q3: {
-        text: "Shadows move: Capital of France?",
+        text: "Shadows move: Capital of Ghana?",
         choices: [
-            { text: "Paris", effect: () => score++, next: "q5" },
-            { text: "Berlin", effect: () => health--, next: "q5" }
+            { text: "Accra", effect: () => score++, next: "q5" },
+            { text: "Abuja", effect: () => health--, next: "q5" }
         ]
     },
 
@@ -131,10 +127,10 @@ const game = {
     },
 
     q10: {
-        text: "Final: 15 - 5?",
+        text: "Final: 15 x 17?",
         choices: [
-            { text: "10", effect: () => score++, next: "win" },
-            { text: "12", effect: () => health--, next: "lose" }
+            { text: "255", effect: () => score++, next: "win" },
+            { text: "225", effect: () => health--, next: "lose" }
         ]
     }
 };
@@ -169,14 +165,14 @@ function changeBackground(url) {
 
 // ------------------ EFFECTS ------------------
 function triggerGlitch() {
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.25) {
         document.body.classList.add("glitch");
         setTimeout(() => document.body.classList.remove("glitch"), 200);
     }
 }
 
 function jumpscare() {
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.08) {
         sounds.jumpscare.play();
 
         let scare = document.createElement("div");
@@ -194,6 +190,7 @@ function jumpscare() {
 
 // ------------------ RENDER ------------------
 function render() {
+
     if (health <= 0) {
         current = "lose";
         endGame(false);
@@ -225,6 +222,7 @@ function render() {
     triggerGlitch();
     jumpscare();
 
+    // heartbeat logic
     if (health === 1) {
         sounds.heartbeat.play();
         document.body.classList.add("danger");
@@ -240,15 +238,15 @@ function choose(choiceText) {
     let choice = node.choices.find(c => c.text === choiceText);
 
     choice.effect();
-
     current = choice.next;
+
     render();
 }
 
 // ------------------ STATS ------------------
 function updateStats() {
     document.getElementById("stats").innerText =
-        `Score: ${score} | Health: ${health} | Time: ${timeLeft}s`;
+        `❤️ Health: ${health} | 🧠 Score: ${score} | ⏱️ Time: ${timeLeft}s`;
 }
 
 // ------------------ END GAME ------------------
@@ -263,11 +261,10 @@ function endGame(win) {
 
     document.getElementById("story").innerText =
         win
-            ? (score >= 7 ? "🏆 You escaped!" : "😐 You barely survived...")
+            ? (score >= 7 ? "🏆 You escaped ShadowPath!" : "😐 You barely survived...")
             : "💀 The house consumes you...";
 }
 
 // ------------------ START ------------------
-startAmbient();
 startTimer();
 render();
