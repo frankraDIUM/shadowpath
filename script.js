@@ -245,7 +245,7 @@ function choose(choiceText) {
 
 // ------------------ STATS ------------------
 function updateStats() {
-    document.getElementById("stats").innerText =
+    document.getElementById("stats").innerHTML =
         `❤️ Health: ${health} | 🧠 Score: ${score} | ⏱️ Time: ${timeLeft}s`;
 }
 
@@ -259,7 +259,7 @@ function endGame(win) {
 
     document.getElementById("choices").innerHTML = "";
 
-    document.getElementById("story").innerText =
+    document.getElementById("story").innerHTML =
         win
             ? (score >= 7 ? "🏆 You escaped ShadowPath!" : "😐 You barely survived...")
             : "💀 The house consumes you...";
